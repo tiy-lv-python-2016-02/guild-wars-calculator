@@ -59,7 +59,7 @@ For the item take the id number and return the item with the following:
 
 #### Character Selection
 * Get an account for the game and create 1-2 characters (it is free to play)
-* Get an API key.  Application [here](https://wiki.guildwars2.com/wiki/API:API_key) Make sure to include `inventories` scope
+* Get an API key.  Application [here](https://wiki.guildwars2.com/wiki/API:API_key) Make sure to include `inventories` and `characters` scope.  You might want this key to just have all scopes allowed.
 
 * Add a characters option to the main menu
 * The option should list the characters (name/race/profession displayed) for your api key using the `characters` endpoint 
