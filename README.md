@@ -20,7 +20,10 @@ Create a cli menu to select the following options:
 
 After display the detail page for a recipe or item give the user the option to return to the main menu or quit.
 
-Using `@staticmethod` and class objects change the JSON data into objects.  Minimum required are Item and Recipe. 
+You must implment Item and Recipe either as classes:
+Using `@staticmethod` and class objects change the JSON data into objects.
+Or as namedtuples:
+Use the example in class to create objects
 
 #### Recipe
 For the recipe option take an id number and return the recipe with the following information:
