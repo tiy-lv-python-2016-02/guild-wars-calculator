@@ -207,8 +207,10 @@ if __name__ == '__main__':
     print("..............................................\n")
     print("      ...LOADING AVAILABLE ITEMS...\n")
 
-    all_listing_ids = requests.get("https://api.guildwars2.com/v2/commerce/listings/")
-    all_recipes = requests.get("https://api.guildwars2.com/v2/recipes/")
+    all_listing_ids = requests.get\
+        ("https://api.guildwars2.com/v2/commerce/listings/")
+    all_recipes = requests.get\
+        ("https://api.guildwars2.com/v2/recipes/")
 
     recipe_ids = all_recipes.json()
     items_with_listing = all_listing_ids.json()
@@ -236,54 +238,59 @@ if __name__ == '__main__':
     main = GW2Main.main_menu()
     while main in 'ri':
         if main in "r":
-                recipe = Recipe()
+            recipe = Recipe()
 
-                id_number = recipe.user_input()
-                recipe_pulled = Recipe.recipe_request(id_number)
+            id_number = recipe.user_input()
+            recipe_pulled = Recipe.recipe_request(id_number)
 
-                ItemRequest.details_format(recipe_pulled, recipe_properties)
-                recipe_output = int(recipe_pulled['output_item_id'])
+            ItemRequest.details_format(recipe_pulled, recipe_properties)
 
-                print("\n------------OUTPUT ITEM DETAILS-------------")
-                recipe_details = ItemRequest.item_request(recipe_output)
-                ItemRequest.details_format(recipe_details, output_properties)
-                recipe_listings = Listing.listing_request(recipe_output)
+            print("\n------------OUTPUT ITEM DETAILS-------------")
+            recipe_output = int(recipe_pulled['output_item_id'])
 
-                print('\n------------INGREDIENTS DETAILS-------------')
-                total_ingredient_cost = []
+            recipe_details = ItemRequest.item_request(recipe_output)
 
-                for x in recipe_pulled['ingredients']:
+            ItemRequest.details_format(recipe_details, output_properties)
 
-                    item_id = x.get('item_id')
+            recipe_listings = Listing.listing_request(recipe_output)
 
-                    quantity = int(x.get('count'))
+            print('\n------------INGREDIENTS DETAILS-------------')
+            total_ingredient_cost = []
 
-                    ingredient_pull = ItemRequest.item_request(int(item_id))
+            for x in recipe_pulled['ingredients']:
 
-                    ItemRequest.details_format(ingredient_pull,
-                                               ingredient_properties)
+                item_id = x.get('item_id')
 
-                    each = Price.price_request(item_id)
+                quantity = int(x.get('count'))
 
-                    pricing = Price.price_request(item_id) * quantity
+                ingredient_pull = ItemRequest.item_request(int(item_id))
 
-                    print("Total cost of ingredient: {}.\n({} x {}(quantity))."
-                          .format(pricing, each, quantity))
+                ItemRequest.details_format(ingredient_pull,
+                                           ingredient_properties)
 
-                    total_ingredient_cost.append(pricing)
+                each = Price.price_request(item_id)
 
-                    print('\n')
+                pricing = Price.price_request(item_id) * quantity
 
-                print("TOTAL COST FOR OUTPUT ITEM : {}\n"
-                      .format(sum(total_ingredient_cost)))
-                output_item = ItemRequest.item_request(recipe_output)
+                print("Total cost of ingredient: {}.\n({} x {}(quantity))."
+                      .format(pricing, each, quantity))
 
-                crafting_difference = Listing.lowest_sell(recipe_listings) - \
-                                      sum(total_ingredient_cost)
-                print("PRICE DIFFERENCE CRAFTING VS BUYING FROM TRADE POST::"
-                      "\n{}".format(crafting_difference))
+                total_ingredient_cost.append(pricing)
 
-                main = GW2Main.main_menu()
+                print('\n')
+
+            print("TOTAL COST FOR OUTPUT ITEM : {}\n"
+                  .format(sum(total_ingredient_cost)))
+            output_item = ItemRequest.item_request(recipe_output)
+
+            crafting_difference = Listing.lowest_sell(recipe_listings)- \
+                                  sum(total_ingredient_cost)
+
+            print("PRICE DIFFERENCE CRAFTING VS BUYING FROM TRADE POST::"
+                  "\n{}".format(crafting_difference))
+
+            main = GW2Main.main_menu()
+
         if main in 'i':
 
             item = ItemRequest()
