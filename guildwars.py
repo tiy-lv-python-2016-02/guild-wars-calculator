@@ -6,11 +6,19 @@ import sys
 class ItemRequest:
 
     def __init__(self):
+        """
+        id_input starting at none to enable the while loop in
+        input function
+        """
 
         self.id_input = None
 
     def item_input(self, items_list):
-
+        """
+        user gives id number
+        :param items_list: the list of available items
+        with listings.
+        """
         while self.id_input is None:
             print('\n')
             self.id_input = \
@@ -23,6 +31,11 @@ class ItemRequest:
 
     @staticmethod
     def item_request(id_num):
+        """
+        uses id number input to request
+        the item's properties
+        :param id_num:  id input by user
+        """
         item_request = \
             requests.get("https://api.guildwars2.com/v2/items/{}"
                          .format(id_num))
@@ -31,6 +44,11 @@ class ItemRequest:
 
     @staticmethod
     def details_format(dictionary_pulled, properties_wanted):
+        """
+        formats the details from the pulled item details
+        :param dictionary_pulled: item or recipe details
+        :param properties_wanted: list of properties to be pulled
+        """
 
         for key in properties_wanted:
             if key == 'details':
@@ -56,12 +74,21 @@ class Listing:
 
     @staticmethod
     def price_listings(listing_requested):
-        print("HIGHEST BUY LISTING(S):")
+        """
+        shows highest buy listing and lowest sell listing
+         of item requested
+        :param listing_requested:  id number of item
+        requested by user
+        """
+
+        # listings are priced in ascending order from lowest to highest.
+
+        print("HIGHEST BUY ORDER LISTING(S):")
         pprint.pprint(listing_requested['buys'][-1])
 
         highest_buy = listing_requested['buys'][-1]['unit_price']
 
-        print("LOWEST SELL LISTING(S):")
+        print("LOWEST SELL OFFER LISTING(S):")
         pprint.pprint(listing_requested['sells'][0])
 
         lowest_sell = listing_requested['sells'][0]['unit_price']
@@ -72,7 +99,14 @@ class Listing:
 
     @staticmethod
     def lowest_sell(listing_requested):
-        print("LOWEST SELL LISTING(S):")
+        """
+        shows lowest sell listing
+        mostly used to compare recipe crafted item
+        cost vs trade post cost
+        :param listing_requested: id number of requested
+        item
+        """
+        print("LOWEST SELL OFFER LISTING(S):")
         pprint.pprint(listing_requested['sells'][0])
 
         return listing_requested['sells'][0]['unit_price']
@@ -81,11 +115,17 @@ class Listing:
 class Recipe:
 
     def __init__(self):
-
+        """
+        recipe input set at none to enable
+        user input function
+        """
         self.recipe_input = None
 
     def user_input(self):
-
+        """
+        gets recipe id number user
+        wants to look up
+        """
         while self.recipe_input is None:
             self.recipe_input = input("Enter item id to get the recipe: ")
             print("\n")
@@ -95,11 +135,6 @@ class Recipe:
                 self.recipe_input = None
 
         return int(self.recipe_input)
-    #
-    # def output_details(self, recipe_output_id, out_properties):
-    #     print("\n------------OUTPUT ITEM DETAILS-------------")
-    #     recipe_details = ItemRequest.item_request(recipe_output_id)
-    #     ItemRequest.details_format(recipe_details, out_properties)
 
     @staticmethod
     def recipe_request(id_number):
@@ -120,6 +155,11 @@ class Price:
 
     @staticmethod
     def price_request(id_num):
+        """
+        returns current aggregated buy and sell listing
+        information from the trading post.
+        used in this program ingredient's cost
+        """
         price_request = requests.get\
             ("https://api.guildwars2.com/v2/commerce/prices/{}"
                                      .format(id_num))
@@ -134,16 +174,28 @@ class GW2Main:
 
     @staticmethod
     def main_menu():
+        """
+        main menu of the program
+        user is given option to
+        look up a recipe or item,
+        with option to quit
+        :return:
+        """
         option_input = None
 
         while option_input is None:
             print("What are you trying to look up?")
             option_input = input("(R)ECIPE OR (I)TEM? (*Type (Q) to quit.)\n>>").lower()
+
             if option_input not in "riq":
+
                 print("Sorry. Invalid Input.")
                 option_input = None
+
             elif option_input == "q":
+
                 sys.exit()
+
         return option_input
 
 if __name__ == '__main__':
