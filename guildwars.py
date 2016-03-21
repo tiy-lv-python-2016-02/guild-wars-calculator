@@ -185,7 +185,8 @@ class GW2Main:
 
         while option_input is None:
             print("What are you trying to look up?")
-            option_input = input("(R)ECIPE OR (I)TEM? (*Type (Q) to quit.)\n>>").lower()
+            option_input = input("(R)ECIPE OR (I)TEM?"
+                                 "(*Type (Q) to quit.)\n>>").lower()
 
             if option_input not in "riq":
 
@@ -273,7 +274,8 @@ if __name__ == '__main__':
 
                     print('\n')
 
-                print("TOTAL COST FOR OUTPUT ITEM :: {}\n".format(sum(total_ingredient_cost)))
+                print("TOTAL COST FOR OUTPUT ITEM : {}\n"
+                      .format(sum(total_ingredient_cost)))
                 output_item = ItemRequest.item_request(recipe_output)
 
                 crafting_difference = Listing.lowest_sell(recipe_listings) - \
