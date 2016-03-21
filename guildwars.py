@@ -84,14 +84,14 @@ class Listing:
         # listings are priced in ascending order from lowest to highest.
 
         print("HIGHEST BUY ORDER LISTING(S):")
-        pprint.pprint(listing_requested['buys'][-1])
+        pprint.pprint(listing_requested.get('buys')[-1])
 
-        highest_buy = listing_requested['buys'][-1]['unit_price']
+        highest_buy = listing_requested.get('buys')[-1]['unit_price']
 
         print("LOWEST SELL OFFER LISTING(S):")
-        pprint.pprint(listing_requested['sells'][0])
+        pprint.pprint(listing_requested.get('sells')[0])
 
-        lowest_sell = listing_requested['sells'][0]['unit_price']
+        lowest_sell = listing_requested.get('sells')[0]['unit_price']
 
         price_spread = lowest_sell - highest_buy
         print("PRICE SPREAD:")
@@ -259,13 +259,15 @@ if __name__ == '__main__':
 
                     ingredient_pull = ItemRequest.item_request(int(item_id))
 
-                    ItemRequest.details_format(ingredient_pull, ingredient_properties)
+                    ItemRequest.details_format(ingredient_pull,
+                                               ingredient_properties)
 
                     each = Price.price_request(item_id)
 
                     pricing = Price.price_request(item_id) * quantity
 
-                    print("Total cost of ingredient: {}.\n({} x {}(quantity)).".format(pricing, each, quantity))
+                    print("Total cost of ingredient: {}.\n({} x {}(quantity))."
+                          .format(pricing, each, quantity))
 
                     total_ingredient_cost.append(pricing)
 
@@ -274,8 +276,10 @@ if __name__ == '__main__':
                 print("TOTAL COST FOR OUTPUT ITEM :: {}\n".format(sum(total_ingredient_cost)))
                 output_item = ItemRequest.item_request(recipe_output)
 
-                crafting_difference = Listing.lowest_sell(recipe_listings) - sum(total_ingredient_cost)
-                print("PRICE DIFFERENCE CRAFTING VS BUYING FROM TRADE POST::\n{}".format(crafting_difference))
+                crafting_difference = Listing.lowest_sell(recipe_listings) - \
+                                      sum(total_ingredient_cost)
+                print("PRICE DIFFERENCE CRAFTING VS BUYING FROM TRADE POST::"
+                      "\n{}".format(crafting_difference))
 
                 main = GW2Main.main_menu()
         if main in 'i':
