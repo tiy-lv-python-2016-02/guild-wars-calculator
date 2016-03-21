@@ -181,62 +181,61 @@ if __name__ == '__main__':
     ]
 
     main = GW2Main.main_menu()
-    if main in 'r':
-        recipe = Recipe()
+    while main in 'ri':
+        if main in "r":
+                recipe = Recipe()
 
-        id_number = recipe.user_input()
-        recipe_pulled = Recipe.recipe_request(id_number)
+                id_number = recipe.user_input()
+                recipe_pulled = Recipe.recipe_request(id_number)
 
-        ItemRequest.details_format(recipe_pulled, recipe_properties)
-        recipe_output = int(recipe_pulled['output_item_id'])
+                ItemRequest.details_format(recipe_pulled, recipe_properties)
+                recipe_output = int(recipe_pulled['output_item_id'])
 
-        print("\n------------OUTPUT ITEM DETAILS-------------")
-        recipe_details = ItemRequest.item_request(recipe_output)
-        ItemRequest.details_format(recipe_details, output_properties)
-        recipe_listings = Listing.listing_request(recipe_output)
+                print("\n------------OUTPUT ITEM DETAILS-------------")
+                recipe_details = ItemRequest.item_request(recipe_output)
+                ItemRequest.details_format(recipe_details, output_properties)
+                recipe_listings = Listing.listing_request(recipe_output)
 
-        print('\n------------INGREDIENTS DETAILS-------------')
-        total_ingredient_cost = []
+                print('\n------------INGREDIENTS DETAILS-------------')
+                total_ingredient_cost = []
 
-        for x in recipe_pulled['ingredients']:
+                for x in recipe_pulled['ingredients']:
 
-            item_id = x.get('item_id')
+                    item_id = x.get('item_id')
 
-            quantity = int(x.get('count'))
+                    quantity = int(x.get('count'))
 
-            ingredient_pull = ItemRequest.item_request(int(item_id))
+                    ingredient_pull = ItemRequest.item_request(int(item_id))
 
-            ItemRequest.details_format(ingredient_pull, ingredient_properties)
+                    ItemRequest.details_format(ingredient_pull, ingredient_properties)
 
-            each = Price.price_request(item_id)
+                    each = Price.price_request(item_id)
 
-            pricing = Price.price_request(item_id) * quantity
+                    pricing = Price.price_request(item_id) * quantity
 
-            print("Total cost of ingredient: {}.\n({} x {}(quantity)).".format(pricing, each, quantity))
+                    print("Total cost of ingredient: {}.\n({} x {}(quantity)).".format(pricing, each, quantity))
 
-            total_ingredient_cost.append(pricing)
+                    total_ingredient_cost.append(pricing)
 
-            print('\n')
+                    print('\n')
 
-        print("TOTAL COST FOR OUTPUT ITEM :: {}\n".format(sum(total_ingredient_cost)))
-        output_item = ItemRequest.item_request(recipe_output)
+                print("TOTAL COST FOR OUTPUT ITEM :: {}\n".format(sum(total_ingredient_cost)))
+                output_item = ItemRequest.item_request(recipe_output)
 
-        crafting_difference = Listing.lowest_sell(recipe_listings) - sum(total_ingredient_cost)
-        print("PRICE DIFFERENCE CRAFTING VS BUYING FROM TRADE POST::\n{}".format(crafting_difference))
+                crafting_difference = Listing.lowest_sell(recipe_listings) - sum(total_ingredient_cost)
+                print("PRICE DIFFERENCE CRAFTING VS BUYING FROM TRADE POST::\n{}".format(crafting_difference))
 
-        main = GW2Main.main_menu()
-    elif main in 'i':
+                main = GW2Main.main_menu()
+        if main in 'i':
 
-        item = ItemRequest()
+            item = ItemRequest()
 
-        item_number = item.item_input(items_with_listing)
+            item_number = item.item_input(items_with_listing)
 
-        item_pulled = item.item_request(item_number)
-        ItemRequest.details_format(item_pulled, item_properties)
+            item_pulled = item.item_request(item_number)
+            ItemRequest.details_format(item_pulled, item_properties)
 
-        item_listing = Listing.listing_request(item_number)
-        Listing.price_listings(item_listing)
+            item_listing = Listing.listing_request(item_number)
+            Listing.price_listings(item_listing)
 
-        main = GW2Main.main_menu()
-    else:
-        sys.exit()
+            main = GW2Main.main_menu()
