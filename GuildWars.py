@@ -12,8 +12,13 @@ class Item:
 
     @staticmethod
     def get_prices(number):
+        """
+        Get item information from the Guild Wars 2 API.
+        :param number: The id number of the item
+        :return: The best buy and sell prices or None if not available
+        """
         price_string = "https://api.guildwars2.com/v2/commerce/" \
-                            "listings/{}".format(number)
+                       "listings/{}".format(number)
         listing = requests.get(price_string)
         prices = listing.json()
         if "buys" in prices:
@@ -27,10 +32,19 @@ class Item:
 
     @staticmethod
     def get_info(number):
+        """
+        :param number: Item number to be looked up.
+        :return: Item information in json.
+        """
         item_url = "https://api.guildwars2.com/v2/items/{}".format(number)
         return requests.get(item_url).json()
 
     def display(self):
+        """
+        The main Item method. Call to print information.
+        :return: Prints out all of the details and price information
+        for an item.
+        """
         info = self.get_info(self.number)
 
         print("")
@@ -50,6 +64,9 @@ class Item:
             print("lowest sell price: ", prices[1])
             print("price spread: ", prices[1] - prices[0])
 
+        # For testing, probably not needed.
+        return self.number
+
 
 class Recipe:
 
@@ -60,6 +77,10 @@ class Recipe:
 
     @staticmethod
     def get_recipe(num):
+        """
+        :param num: Recipe id number.
+        :return: Recipe information in json.
+        """
         recipe_url = "https://api.guildwars2.com/v2/recipes/{}".format(num)
         recipe = requests.get(recipe_url)
 
@@ -67,17 +88,23 @@ class Recipe:
 
     @staticmethod
     def get_item(num):
-        # gets info for item
-        # used for both output and ingredients
+        """
+        This is used for both output and ingredient items.
+        :param num: Item id number.
+        :return: Item information in json.
+        """
         item_url = "https://api.guildwars2.com/v2/items/{}".format(num)
         item_info = requests.get(item_url)
         return item_info.json()
 
     @staticmethod
     def get_prices(num):
-        # get buy/sell price for item
-        # https://api.guildwars2.com/v2/commerce/prices/{}
-        price_url = "https://api.guildwars2.com/v2/commerce/prices/{}".format(num)
+        """
+        :param num: Item number.
+        :return: Buy and sell price information for the given number.
+        """
+        price_url = "https://api.guildwars2.com/v2/commerce/prices/{}"\
+            .format(num)
         lookup = requests.get(price_url)
         prices = lookup.json()
 
@@ -89,7 +116,10 @@ class Recipe:
             return None
 
     def output_item_display(self, number):
-        # return info on an output item to be printed by display.
+        """
+        :param number: Output item id number.
+        :return: Prints information for a recipe output item.
+        """
         item = self.get_item(number)
         areas = ["name", "rarity", "vendor_value"]
 
@@ -109,11 +139,18 @@ class Recipe:
             print("Item is bound, no selling")
 
     def update_ingredient_cost(self, price):
+        """
+        :param price: Price * quantity for one ingredient.
+        :return: Updates total cost of ingredients.
+        """
         self.ingredients_cost += price
 
     def display_ingredient(self, num, quantity):
-        # Not sure if None check is needed, just to be safe.
-
+        """
+        :param num: Id number for one ingredient.
+        :param quantity: Quantity of item used in recipe.
+        :return: Total cost for a single ingredient item.
+        """
         ingredient_info = self.get_item(num)
         print("name: {}".format(ingredient_info["name"]))
         print("rarity: {}".format(ingredient_info["rarity"]))
@@ -135,8 +172,11 @@ class Recipe:
             print("Bound item, can not be sold")
 
     def display(self):
-        # main display method, draws info from other methods.
-        # calc price difference.
+        """
+        This is the main Recipe display method.
+        :return: Prints recipe information including ingredients,
+        output item, ingredients, and costs.
+        """
         recipe = self.get_recipe(self.num)
         output_id = recipe["output_item_id"]
 
@@ -161,14 +201,19 @@ class Recipe:
             price_diff = self.output_sell_price - self.ingredients_cost
             print("Price difference: {}\n".format(price_diff))
 
+        return self.num
+
 
 class Main:
 
-    # def __int__(self):
-    #     self.keep_going = True
-
     @staticmethod
     def number_input(choice):
+        """
+        This method looks up a list of all available id numbers for
+        either recipes or items.
+        :param choice: User input choosing to lookup recipes or items.
+        :return: A list of all available id numbers.
+        """
         option_string = "https://api.guildwars2.com/v2/{}/"
 
         if choice == "R":
@@ -181,6 +226,13 @@ class Main:
 
     @staticmethod
     def get_id_input(options):
+        """
+        Prompts user to input a valid id number to look up. Only to highest
+        and lowest numbers are listed. An unavailable selection will
+        repeat the prompt.
+        :param options: All available id numbers.
+        :return: Valid id number to be looked up.
+        """
         lowest = min(options)
         highest = max(options)
         number = " "
@@ -192,12 +244,23 @@ class Main:
 
     @staticmethod
     def create_object(choice, id_num):
+        """
+        :param choice: Type of object to be instantiated.
+        :param id_num: Id number to be instantiated.
+        :return: An object to Main to be displayed.
+        """
         if choice == "R":
             return Recipe(id_num)
         else:
             return Item(id_num)
 
     def run(self):
+        """
+        The main run function. The user selects a type of object, a specific
+        number, and then the corresponding information is displayed.
+        :return: The object information is printed. User is prompted to make
+        another selection.
+        """
         print("Welcome to the Guild Wars 2 API")
         print("What do you want to look up?")
 
@@ -218,4 +281,3 @@ class Main:
 if __name__ == '__main__':
     main = Main()
     main.run()
-
