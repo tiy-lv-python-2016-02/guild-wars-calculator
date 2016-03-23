@@ -68,6 +68,8 @@ class ItemRequest:
 
 class Listing:
 
+    listing_properties = ['buys', 'sells']
+
     def __init__(self, id_number):
         self.id = str(id_number)
 
@@ -77,8 +79,11 @@ class Listing:
             requests.get("https://api.guildwars2.com/v2/commerce/listings/{}"
                      .format(id_number))
         listing_dict = listing_request.json()
+        listing = Listing(id_number)
+        for key in Listing.listing_properties:
+            setattr(listing, key, listing_dict.get(key))
 
-        return listing_dict
+        return listing
 
     @staticmethod
     def price_listings(listing_requested):
@@ -92,14 +97,14 @@ class Listing:
         # listings are priced in ascending order from lowest to highest.
 
         print("HIGHEST BUY ORDER LISTING(S):")
-        pprint.pprint(listing_requested.get('buys')[-1])
+        pprint.pprint(listing_requested.buys[-1])
 
-        highest_buy = listing_requested.get('buys')[-1]['unit_price']
+        highest_buy = listing_requested.buys[-1]['unit_price']
 
         print("LOWEST SELL OFFER LISTING(S):")
-        pprint.pprint(listing_requested.get('sells')[0])
+        pprint.pprint(listing_requested.sells[0])
 
-        lowest_sell = listing_requested.get('sells')[0]['unit_price']
+        lowest_sell = listing_requested.sells[0]['unit_price']
 
         price_spread = lowest_sell - highest_buy
         print("PRICE SPREAD:")
@@ -115,9 +120,9 @@ class Listing:
         item
         """
         print("LOWEST SELL OFFER LISTING(S):")
-        pprint.pprint(listing_requested['sells'][0])
+        pprint.pprint(listing_requested.sells[0])
 
-        return listing_requested['sells'][0]['unit_price']
+        return listing_requested.sells[0]['unit_price']
 
 
 class Recipe:
@@ -259,16 +264,6 @@ if __name__ == '__main__':
 
     recipe_ids = all_recipes.json()
     items_with_listing = all_listing_ids.json()
-
-
-    output_properties = [
-        'name', 'rarity',
-        'level', 'vendor_value',
-    ]
-
-    ingredient_properties = [
-        'name', 'rarity'
-    ]
 
     main = main_menu()
 
