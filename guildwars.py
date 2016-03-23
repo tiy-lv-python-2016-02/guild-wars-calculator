@@ -3,31 +3,34 @@ import pprint
 import sys
 
 
+# should be item
 class ItemRequest:
 
-    def __init__(self):
-        """
-        id_input starting at none to enable the while loop in
-        input function
-        """
+    item_properties = [
+            'name', 'id', 'description', 'type',
+            'rarity', 'level', 'vendor_value',
+            'game_types', 'restrictions', 'details'
+    ]
 
-        self.id_input = None
 
-    def item_input(self, items_list):
+    @staticmethod
+    def item_input(items_list):
         """
         user gives id number
         :param items_list: the list of available items
         with listings.
         """
-        while self.id_input is None:
+        id_input = None
+
+        while not id_input:
             print('\n')
-            self.id_input = \
+            id_input = \
                 input("Enter item ID number: >> 1 - 78005 >> :  ")
 
-            if int(self.id_input) not in items_list:
+            if int(id_input) not in items_list:
                 print("\nSorry. Invalid ID.")
-                self.id_input = None
-        return int(self.id_input)
+                id_input = None
+        return int(id_input)
 
     @staticmethod
     def item_request(id_num):
@@ -36,41 +39,46 @@ class ItemRequest:
         the item's properties
         :param id_num:  id input by user
         """
+        # item_properties = [
+    #         'name', 'id', 'description', 'type',
+    #         'rarity', 'level', 'vendor_value',
+    #         'game_types', 'restrictions', 'details'
+    # ]
         item_request = \
             requests.get("https://api.guildwars2.com/v2/items/{}"
                          .format(id_num))
-        item = item_request.json()
+        item_dict = item_request.json()
+        item = ItemRequest()
+        for key in ItemRequest.item_properties:
+            setattr(item, key, item_dict.get(key))
+
         return item
 
-    @staticmethod
-    def details_format(dictionary_pulled, properties_wanted):
+    def details_format(self):
         """
         formats the details from the pulled item details
-        :param dictionary_pulled: item or recipe details
-        :param properties_wanted: list of properties to be pulled
         """
-
-        for key in properties_wanted:
+        for key in self.item_properties:
             if key == 'details':
                 print(key, ": ")
-                pprint.pprint(dictionary_pulled['details'])
+                pprint.pprint(self.details)
             else:
-                print(key,":", dictionary_pulled.get(key, "None"))
+                print(key,":", getattr(self, key, None))
 
 
 class Listing:
 
-    def __init__(self, id, listing):
-        self.id = str(id)
-        self.listing_requested = listing
+    def __init__(self, id_number):
+        self.id = str(id_number)
 
     @staticmethod
     def listing_request(id_number):
         listing_request =\
             requests.get("https://api.guildwars2.com/v2/commerce/listings/{}"
                      .format(id_number))
-        listing = listing_request.json()
-        return listing
+        listing_dict = listing_request.json()
+
+        return listing_dict
 
     @staticmethod
     def price_listings(listing_requested):
@@ -114,27 +122,34 @@ class Listing:
 
 class Recipe:
 
+    recipe_properties = [
+        'id', 'type', 'output_item_count',
+        'output_item_id', 'min_rating', 'ingredients'
+    ]
+
     def __init__(self):
         """
         recipe input set at none to enable
         user input function
         """
-        self.recipe_input = None
+        self.ingredients_list = []
 
-    def user_input(self):
+    @staticmethod
+    def user_input(recipe_ids):
         """
         gets recipe id number user
         wants to look up
         """
-        while self.recipe_input is None:
-            self.recipe_input = input("Enter item id to get the recipe: ")
+        recipe_input = None
+        while not recipe_input:
+            recipe_input = input("Enter item id to get the recipe: ")
             print("\n")
 
-            if int(self.recipe_input) not in recipe_ids:
+            if int(recipe_input) not in recipe_ids:
                 print("\nSorry. Not a valid recipe id.")
-                self.recipe_input = None
+                recipe_input = None
 
-        return int(self.recipe_input)
+        return int(recipe_input)
 
     @staticmethod
     def recipe_request(id_number):
@@ -143,9 +158,46 @@ class Recipe:
             requests.get("https://api.guildwars2.com/v2/recipes/{}"
                          .format(id_number))
 
-        recipe = recipe_request.json()
+        recipe_dict = recipe_request.json()
+        recipe = Recipe()
+        for key in Recipe.recipe_properties:
+            setattr(recipe, key, recipe_dict.get(key))
 
         return recipe
+
+    def details_format(self):
+        """
+        formats the details from the pulled item details
+        """
+        for key in self.recipe_properties:
+            print(key,":", getattr(self, key, None))
+
+    def ingredient_list(self):
+
+        total_ingredient_cost = []
+
+        for ingredient in self.ingredients:
+
+            item_id = ingredient.get('item_id')
+
+            quantity = int(ingredient.get('count'))
+
+            ingredient_pull = ItemRequest.item_request(int(item_id))
+
+            ingredient_pull.details_format()
+
+            each = Price.price_request(item_id)
+
+            pricing = Price.price_request(item_id) * quantity
+
+            print("Total cost of ingredient: {}.\n({} x {}(quantity))."
+                  .format(pricing, each, quantity))
+
+            total_ingredient_cost.append(pricing)
+
+            print('\n')
+
+        return total_ingredient_cost
 
 
 class Price:
@@ -167,37 +219,30 @@ class Price:
         return price['buys']['unit_price']
 
 
-class GW2Main:
+def main_menu():
+    """
+    main menu of the program.
+    user is given option to
+    look up a recipe or item,
+    with option to quit
+    """
+    option_input = None
 
-    def __init__(self):
-        pass
+    while not option_input:
+        print("What are you trying to look up?")
+        option_input = input("(R)ECIPE OR (I)TEM?"
+                             "(*Type (Q) to quit.)\n>>").lower()
 
-    @staticmethod
-    def main_menu():
-        """
-        main menu of the program
-        user is given option to
-        look up a recipe or item,
-        with option to quit
-        :return:
-        """
-        option_input = None
+        if option_input not in "riq":
 
-        while option_input is None:
-            print("What are you trying to look up?")
-            option_input = input("(R)ECIPE OR (I)TEM?"
-                                 "(*Type (Q) to quit.)\n>>").lower()
+            print("Sorry. Invalid Input.")
+            option_input = None
 
-            if option_input not in "riq":
+        elif option_input == "q":
 
-                print("Sorry. Invalid Input.")
-                option_input = None
+            sys.exit()
 
-            elif option_input == "q":
-
-                sys.exit()
-
-        return option_input
+    return option_input
 
 if __name__ == '__main__':
 
@@ -215,16 +260,6 @@ if __name__ == '__main__':
     recipe_ids = all_recipes.json()
     items_with_listing = all_listing_ids.json()
 
-    item_properties = [
-            'name', 'id', 'description', 'type',
-            'rarity', 'level', 'vendor_value',
-            'game_types', 'restrictions', 'details'
-    ]
-
-    recipe_properties = [
-        'id', 'type', 'output_item_count',
-        'min_rating'
-    ]
 
     output_properties = [
         'name', 'rarity',
@@ -235,49 +270,30 @@ if __name__ == '__main__':
         'name', 'rarity'
     ]
 
-    main = GW2Main.main_menu()
-    while main in 'ri':
-        if main in "r":
-            recipe = Recipe()
+    main = main_menu()
 
-            id_number = recipe.user_input()
+    while main in 'ri':
+
+        if main in "r":
+
+            id_number = Recipe.user_input(recipe_ids)
             recipe_pulled = Recipe.recipe_request(id_number)
 
-            ItemRequest.details_format(recipe_pulled, recipe_properties)
+            recipe_pulled.details_format()
 
             print("\n------------OUTPUT ITEM DETAILS-------------")
-            recipe_output = int(recipe_pulled['output_item_id'])
+
+            recipe_output = int(recipe_pulled.output_item_id)
 
             recipe_details = ItemRequest.item_request(recipe_output)
 
-            ItemRequest.details_format(recipe_details, output_properties)
+            ItemRequest.details_format(recipe_details)
 
             recipe_listings = Listing.listing_request(recipe_output)
 
             print('\n------------INGREDIENTS DETAILS-------------')
-            total_ingredient_cost = []
 
-            for x in recipe_pulled['ingredients']:
-
-                item_id = x.get('item_id')
-
-                quantity = int(x.get('count'))
-
-                ingredient_pull = ItemRequest.item_request(int(item_id))
-
-                ItemRequest.details_format(ingredient_pull,
-                                           ingredient_properties)
-
-                each = Price.price_request(item_id)
-
-                pricing = Price.price_request(item_id) * quantity
-
-                print("Total cost of ingredient: {}.\n({} x {}(quantity))."
-                      .format(pricing, each, quantity))
-
-                total_ingredient_cost.append(pricing)
-
-                print('\n')
+            total_ingredient_cost = recipe_pulled.ingredient_list()
 
             print("TOTAL COST FOR OUTPUT ITEM : {}\n"
                   .format(sum(total_ingredient_cost)))
@@ -289,18 +305,14 @@ if __name__ == '__main__':
             print("PRICE DIFFERENCE CRAFTING VS BUYING FROM TRADE POST::"
                   "\n{}".format(crafting_difference))
 
-            main = GW2Main.main_menu()
-
         if main in 'i':
 
-            item = ItemRequest()
+            item_number = ItemRequest.item_input(items_with_listing)
 
-            item_number = item.item_input(items_with_listing)
-
-            item_pulled = item.item_request(item_number)
-            ItemRequest.details_format(item_pulled, item_properties)
+            item_pulled = ItemRequest.item_request(item_number)
+            item_pulled.details_format()
 
             item_listing = Listing.listing_request(item_number)
             Listing.price_listings(item_listing)
 
-            main = GW2Main.main_menu()
+        main = main_menu()
